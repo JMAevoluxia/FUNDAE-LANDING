@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import { Settings, Users, Link2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Settings, Users, Link2, CheckCircle2 } from "lucide-react";
 
 const steps = [
     {
@@ -44,14 +43,8 @@ const steps = [
 ];
 
 export default function ComoFunciona() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"]
-    });
-
     return (
-        <section id="como-funciona" ref={containerRef} className="relative py-24 bg-pearl">
+        <section id="como-funciona" className="relative py-24 bg-pearl">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Section Header */}
                 <motion.div
@@ -71,80 +64,82 @@ export default function ComoFunciona() {
                     </p>
                 </motion.div>
 
-                {/* Stacked Cards Container */}
-                <div className="relative h-[300vh]">
+                {/* Steps Container - Each step takes full viewport height */}
+                <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-8">
                     {steps.map((step, index) => {
-                        const startRange = index * 0.33;
-                        const endRange = startRange + 0.33;
-
-                        const y = useTransform(scrollYProgress,
-                            [startRange, startRange + 0.1, endRange - 0.1, endRange],
-                            [100, 0, 0, -100]
-                        );
-
-                        const scale = useTransform(scrollYProgress,
-                            [startRange, startRange + 0.1, endRange - 0.1, endRange],
-                            [0.95, 1, 1, 0.95]
-                        );
-
-                        const opacity = useTransform(scrollYProgress,
-                            [startRange, startRange + 0.1, endRange - 0.1, endRange],
-                            [0.4, 1, 1, 0.4]
-                        );
-
                         const Icon = step.icon;
 
                         return (
                             <motion.div
                                 key={step.id}
-                                style={{ y, scale, opacity }}
-                                className={`sticky top-24 left-0 right-0 max-w-4xl mx-auto`}
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: index * 0.2 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                className="relative"
                             >
-                                <div className="bg-white rounded-3xl shadow-xl shadow-charcoal/5 overflow-hidden border border-charcoal/5">
-                                    <div className="p-8 md:p-12">
-                                        {/* Card Header */}
-                                        <div className="flex items-start gap-6 mb-8">
-                                            <div className="w-16 h-16 bg-cobalt/10 rounded-2xl flex items-center justify-center flex-shrink-0">
-                                                <Icon className="w-8 h-8 text-cobalt" />
+                                {/* Step Card */}
+                                <div className="bg-white rounded-3xl shadow-xl shadow-charcoal/5 overflow-hidden border border-charcoal/5 h-full">
+                                    <div className="p-8 md:p-10">
+                                        {/* Step Number Badge */}
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="w-12 h-12 bg-cobalt rounded-full flex items-center justify-center">
+                                                <span className="text-white font-bold text-lg">{step.id}</span>
                                             </div>
-                                            <div>
-                                                <span className="text-cobalt text-sm font-semibold">Paso {step.id}</span>
-                                                <h3 className="text-2xl md:text-3xl font-bold text-charcoal mt-1">
-                                                    {step.title}
-                                                </h3>
-                                            </div>
+                                            <div className="w-16 h-px bg-charcoal/10"></div>
                                         </div>
 
+                                        {/* Icon */}
+                                        <div className="w-14 h-14 bg-cobalt/10 rounded-2xl flex items-center justify-center mb-6">
+                                            <Icon className="w-7 h-7 text-cobalt" />
+                                        </div>
+
+                                        {/* Title */}
+                                        <h3 className="text-xl md:text-2xl font-bold text-charcoal mb-4">
+                                            {step.title}
+                                        </h3>
+
                                         {/* Description */}
-                                        <p className="text-charcoal/60 text-lg mb-8 max-w-2xl">
+                                        <p className="text-charcoal/60 mb-6">
                                             {step.description}
                                         </p>
 
                                         {/* Features List */}
-                                        <div className="grid md:grid-cols-2 gap-3">
+                                        <div className="space-y-3">
                                             {step.features.map((feature, fIndex) => (
                                                 <motion.div
                                                     key={fIndex}
-                                                    initial={{ opacity: 0, x: -20 }}
+                                                    initial={{ opacity: 0, x: -10 }}
                                                     whileInView={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: fIndex * 0.1 }}
+                                                    transition={{ delay: (index * 0.2) + (fIndex * 0.05) }}
                                                     viewport={{ once: true }}
-                                                    className="flex items-center gap-3"
+                                                    className="flex items-start gap-3"
                                                 >
-                                                    <CheckCircle2 className="w-5 h-5 text-cobalt flex-shrink-0" />
-                                                    <span className="text-charcoal/70">{feature}</span>
+                                                    <CheckCircle2 className="w-4 h-4 text-cobalt flex-shrink-0 mt-0.5" />
+                                                    <span className="text-charcoal/70 text-sm">{feature}</span>
                                                 </motion.div>
                                             ))}
                                         </div>
 
-                                        {/* CTA for each step */}
+                                        {/* Connector Line (except for last item on mobile) */}
                                         {index < steps.length - 1 && (
-                                            <div className="flex justify-center mt-8">
-                                                <ArrowRight className="w-6 h-6 text-charcoal/20" />
+                                            <div className="md:hidden flex items-center justify-center mt-6">
+                                                <div className="w-0.5 h-8 bg-charcoal/20"></div>
                                             </div>
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Arrow Connector for Desktop */}
+                                {index < steps.length - 1 && (
+                                    <div className="hidden md:flex absolute top-1/2 -right-4 z-10 transform -translate-y-1/2">
+                                        <div className="w-8 h-8 bg-cobalt rounded-full flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                )}
                             </motion.div>
                         );
                     })}
